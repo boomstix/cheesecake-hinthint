@@ -112,15 +112,18 @@ else:
 		// render input form
 		?>
 
-<div class="container">		
-<h1>Hey, big momma!!</h1>
+<div class="container">
+<h1>Hint Hint</h1>
+<h3>Mother's Day  on May 11<sup>th</sup></h3>
+<p>Dear <?= $my_name ?>,</p>
+<p>Let&rsquo;s be honest, some people need more than a gentle hint that Mother&rsquo;s Day is just round the corner. So this year we&rsquo;re stepping in to help out, just click on the &ldquo;send a hint&rdquo; button below and we&rsquo;ll give them a nudge on your behalf.</p>
 </div>
 
-<!-- -->
+<!--
 <pre>
 <? var_dump($_POST); ?>
 </pre>
-<!-- -->
+-->
 
 <form name="landing_form" method="post">
 
@@ -153,7 +156,7 @@ else:
 </fieldset>
 
 <fieldset class="form-group">
-	<label for="perfect_gift">My perfect Mother's Day gift would be:</label>
+	<label for="perfect_gift">My perfect Mother&rsquo;s Day gift would be:</label>
 	<select class="form-control" id="perfect-gift" name="perfect_gift">
 		<option value="">Choose your perfect gift</option>
 		<option<?= $perfect_gift == "A bunch of flowers" ? ' selected="selected" ' : '' ?>>A bunch of flowers</option>
@@ -227,8 +230,10 @@ else:
 </div>
 
 <fieldset class="form-group">
-	<input type="checkbox" id="accept-terms" name="accept_terms" <?= $accept_terms ? 'checked="checked" ' : '' ?>/>
-	<label for="accept-terms">I agree to the terms and conditions</label>
+	<div class="checkbox">
+		<input type="checkbox" id="accept-terms" name="accept_terms" <?= $accept_terms ? 'checked="checked" ' : '' ?>/>
+		<label for="accept-terms">By clicking Send Reminder, you are agreeing to the <a href="#">Terms and Conditions</a> and opt in to receive further communication from the Cheesecake Shop.</label>
+	</div>
 </fieldset>
 
 <fieldset class="form-group">

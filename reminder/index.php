@@ -3,7 +3,7 @@
 require_once('../assets/php/config.php');
 require_once('../assets/php/lib.php');
 
-$my_name = isset($_GET['name']) ? $_GET['name'] : 'Mum';
+$my_name = isset($_GET['name']) ? $_GET['name'] : '';
 $my_name_err = '';
 
 $my_email = isset($_GET['email']) ? $_GET['email'] : '';
@@ -77,8 +77,10 @@ else:
 		// render input form
 		?>
 
-<div class="container">		
-<h1>Hey, big momma!!</h1>
+<div class="container">
+<h1>Hint Hint</h1>
+<h3>Mother's Day  on May 11<sup>th</sup></h3>
+<p>All you have to do is set yourself a little reminder below to pick up your Mother&rsquo;s day cake from The Cheesecake Shop, and we&rsquo;ll do the rest.</p>
 </div>
 
 <!--		
@@ -134,12 +136,14 @@ else:
 </fieldset>
 
 <fieldset class="form-group">
-	<input type="checkbox" id="accept-terms" name="accept_terms" <?= $accept_terms ? 'checked="checked" ' : '' ?>/>
-	<label for="accept-terms">I agree to the terms and conditions</label>
+	<div class="checkbox">
+		<input type="checkbox" id="accept-terms" name="accept_terms" <?= $accept_terms ? 'checked="checked" ' : '' ?>/>
+		<label for="accept-terms">By clicking Set Reminder, you are agreeing to the <a href="#">Terms and Conditions</a> and opt in to receive further communication from the Cheesecake Shop.</label>
+	</div>
 </fieldset>
 
 <fieldset class="form-group">
-	<button id="btn-submitted" name="submitted" value="Send reminder">Send reminder</button>
+	<button id="btn-submitted" name="submitted" value="Set reminder">Set reminder</button>
 </fieldset>
 
 </div>
