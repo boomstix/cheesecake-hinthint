@@ -1,0 +1,20 @@
+.cooper {
+	font-family: 'cooper-black-std', sans-serif;
+	font-size: 14px;
+}
+
+button, input[type='button'], .btn-like {
+	border-style:solid;
+	border-radius: 3px;
+	background-color: #fff;
+	border-color: #b7c8cf;
+	color: #000;
+	padding: 2px 6px 3px;
+}
+
+input[type='button'].active-button {
+	background-color: #ff00a6;
+	border-color: #ab218e;
+	color: #fff;
+}
+
