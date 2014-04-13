@@ -1,6 +1,7 @@
 <?php
 
 require_once('./assets/php/config.php');
+require_once('./assets/php/lib.php');
 
 $reminder_to = null;
 $reminder_to_err = '';
@@ -39,28 +40,30 @@ if ($submitted) :
 	// echo "submitted";
 
 	// get input
-	$reminder_to = isset($_POST['reminder_to']) ? $_POST['reminder_to'] : false;
+	$reminder_to = isset($_POST['reminder_to']) ? substr($_POST['reminder_to'], 0, 100) : false;
 	$reminder_to_err = (strlen($reminder_to) < 2) ? 'Please choose to whom you want the reminder sent' : '';
 	
-	$perfect_gift = isset($_POST['perfect_gift']) ? $_POST['perfect_gift'] : false;
+	$perfect_gift = isset($_POST['perfect_gift']) ? substr($_POST['perfect_gift'], 0, 100) : false;
 	$perfect_gift_err = (strlen($perfect_gift) == 0) ? 'Please choose your perfect gift' : '';
 	
-	$cake = isset($_POST['cake']) ? $_POST['cake'] : false;
+	$cake = isset($_POST['cake']) ? substr($_POST['cake'], 0, 100) : false;
 	$cake_err = (strlen($cake) == 0) ? 'Please choose your favourite cake' : '';
 	
-	$cake_other = isset($_POST['cake_other']) ? $_POST['cake_other'] : false;
-	$cake_other_err = (($cake == "other") && (strlen($cake_other) < 2)) ? 'Please state your preferred cake' : '';
+	if ($cake == "Other"):
+		$cake_other = isset($_POST['cake_other']) ? substr($_POST['cake_other'], 0, 100) : false;
+		$cake_other_err = (strlen($cake_other) < 2) ? 'Please state your preferred cake' : '';
+	endif;
 	
-	$my_name = isset($_POST['my_name']) ? $_POST['my_name'] : false;
+	$my_name = isset($_POST['my_name']) ? substr($_POST['my_name'], 0, 100) : false;
 	$my_name_err = (strlen($my_name) < 2) ? 'Please state your name' : '';
 	
-	$my_email = isset($_POST['my_email']) ? $_POST['my_email'] : false;
+	$my_email = isset($_POST['my_email']) ? substr($_POST['my_email'], 0, 100) : false;
 	$my_email_err = !isValidEmail($my_email) ? 'Please state your email address' : '';
 	
-	$reminder_name = isset($_POST['reminder_name']) ? $_POST['reminder_name'] : false;
+	$reminder_name = isset($_POST['reminder_name']) ? substr($_POST['reminder_name'], 0, 100) : false;
 	$reminder_err = (strlen($reminder_name) < 2) ? 'Please state the name of the person you want to remind' : '';
 	
-	$reminder_email = isset($_POST['reminder_email']) ? $_POST['reminder_email'] : false;
+	$reminder_email = isset($_POST['reminder_email']) ? substr($_POST['reminder_email'], 0, 100) : false;
 	$reminder_email_err = !isValidEmail($reminder_email) ? 'Please state the email address of the person you want to remind' : '';
 	
 	$accept_terms = isset($_POST['accept_terms']);
@@ -70,7 +73,18 @@ if ($submitted) :
 
 	if (!$form_err) :
 	
-		$completed = true;	
+		// Has the recipient already been registered?
+		$data = mysql_select_rows('SELECT id FROM landing_data WHERE reminder_email = :reminder_email;', array(':reminder_email' => $reminder_email));
+		// Assume its new
+		$sql_str = "INSERT INTO `landing_data` (`reminder_to`, `perfect_gift`, `cake`, `my_name`, `my_email`, `reminder_name`, `reminder_email`, `create_date`) VALUES (:reminder_to, :perfect_gift, :cake, :my_name, :my_email, :reminder_name, :reminder_email, now() );";
+		if (count($data) > 0) :
+			// We want to update it if its already been added
+			$sql_str = "UPDATE `landing_data` SET `reminder_to` = :reminder_to, `perfect_gift` = :perfect_gift, `cake` = :cake, `my_name` = :my_name, `my_email` = :my_email, `reminder_name` = :reminder_name, `create_date` = now() WHERE reminder_email = :reminder_email;";
+		endif;
+		// Execute the sql string
+		mysql_execute($sql_str, array(':reminder_to' => $reminder_to, ':perfect_gift' => $perfect_gift, ':cake' => ($cake == "Other" ? $cake_other : $cake), ':my_name' => $my_name, ':my_email' => $my_email, ':reminder_name' => $reminder_name, ':reminder_email' => $reminder_email));
+		// Set the complete flag
+		$completed = !$db_err;
 	
 	endif;
 	
@@ -102,11 +116,11 @@ else:
 <h1>Hey, big momma!!</h1>
 </div>
 
-<!--		
+<!-- -->
 <pre>
 <? var_dump($_POST); ?>
 </pre>
--->
+<!-- -->
 
 <form name="landing_form" method="post">
 
@@ -142,11 +156,13 @@ else:
 	<label for="perfect_gift">My perfect Mother's Day gift would be:</label>
 	<select class="form-control" id="perfect-gift" name="perfect_gift">
 		<option value="">Choose your perfect gift</option>
-		<option<?= $perfect_gift == "Pretzels" ? ' selected="selected" ' : '' ?>>Pretzels</option>
-		<option<?= $perfect_gift == "Onions" ? ' selected="selected" ' : '' ?>>Onions</option>
-		<option<?= $perfect_gift == "Plastic bags" ? ' selected="selected" ' : '' ?>>Plastic bags</option>
-		<option<?= $perfect_gift == "Extension cord" ? ' selected="selected" ' : '' ?>>Extension cord</option>
-		<option<?= $perfect_gift == "Esky" ? ' selected="selected" ' : '' ?>>Esky</option>
+		<option<?= $perfect_gift == "A bunch of flowers" ? ' selected="selected" ' : '' ?>>A bunch of flowers</option>
+		<option<?= $perfect_gift == "A day without the kids (so you can go shopping)" ? ' selected="selected" ' : '' ?>>A day without the kids (so you can go shopping)</option>
+		<option<?= $perfect_gift == "A massage" ? ' selected="selected" ' : '' ?>>A massage</option>
+		<option<?= $perfect_gift == "A box of chocolates" ? ' selected="selected" ' : '' ?>>A box of chocolates</option>
+		<option<?= $perfect_gift == "A diamond ring" ? ' selected="selected" ' : '' ?>>A diamond ring</option>
+		<option<?= $perfect_gift == "Something shiny" ? ' selected="selected" ' : '' ?>>Something shiny</option>
+		<option<?= $perfect_gift == "For you to do the housework" ? ' selected="selected" ' : '' ?>>For you to do the housework</option>
 	</select>
 </fieldset>
 
@@ -184,13 +200,13 @@ else:
 	<div class="col-md-6">
 		<fieldset class="form-group">
 			<label for="my-name">Your name</label>
-			<input type="text" class="form-control" id="my-name" name="my_name" value="<?= $my_name ?>" />
+			<input type="text" class="form-control" id="my-name" name="my_name" value="<?= $my_name ?>" maxlength="100" />
 		</fieldset>
 	</div>
 	<div class="col-md-6">
 		<fieldset class="form-group">
 			<label for="my-email">Your email</label>
-			<input type="text" class="form-control" id="my-email" name="my_email" value="<?= $my_email ?>" />
+			<input type="text" class="form-control" id="my-email" name="my_email" value="<?= $my_email ?>" maxlength="100" />
 		</fieldset>
 	</div>
 </div>
@@ -199,13 +215,13 @@ else:
 	<div class="col-md-6">
 		<fieldset class="form-group">
 			<label for="reminder-name" id="label-reminder-name">Reminder name</label>
-			<input type="text" class="form-control" id="reminder-name" name="reminder_name" value="<?= $reminder_name ?>" />
+			<input type="text" class="form-control" id="reminder-name" name="reminder_name" value="<?= $reminder_name ?>" maxlength="100" />
 		</fieldset>
 	</div>
 	<div class="col-md-6">
 		<fieldset class="form-group">
 			<label for="reminder-email" id="label-reminder-email">Reminder email</label>
-			<input type="text" class="form-control" id="reminder-email" name="reminder_email" value="<?= $reminder_email ?>" />
+			<input type="text" class="form-control" id="reminder-email" name="reminder_email" value="<?= $reminder_email ?>" maxlength="100" />
 		</fieldset>
 	</div>
 </div>

@@ -1,6 +1,7 @@
 <?php
 
 require_once('../assets/php/config.php');
+require_once('../assets/php/lib.php');
 
 $my_name = isset($_GET['name']) ? $_GET['name'] : 'Mum';
 $my_name_err = '';
@@ -21,13 +22,13 @@ $completed = false;
 
 if ($submitted) :
 
-	$my_name = isset($_POST['my_name']) ? $_POST['my_name'] : false;
+	$my_name = isset($_POST['my_name']) ? substr($_POST['my_name'], 0 ,100) : false;
 	$my_name_err = (strlen($my_name) < 2) ? 'Please state your name' : '';
 	
-	$my_email = isset($_POST['my_email']) ? $_POST['my_email'] : false;
+	$my_email = isset($_POST['my_email']) ? substr($_POST['my_email'], 0, 100) : false;
 	$my_email_err = !isValidEmail($my_email) ? 'Please state your email address' : '';
 	
-	$reminder_date = isset($_POST['reminder_date']) ? $_POST['reminder_date'] : false;
+	$reminder_date = isset($_POST['reminder_date']) ? substr($_POST['reminder_date'], 0, 100) : false;
 	$reminder_date_err = (strlen($reminder_date) == 0) ? 'Please select your reminder date' : '';
 	
 	$accept_terms = isset($_POST['accept_terms']);
@@ -37,7 +38,18 @@ if ($submitted) :
 
 	if (!$form_err) :
 	
-		$completed = true;	
+		// Has the recipient already been registered?
+		$data = mysql_select_rows('SELECT id FROM reminder_data WHERE my_email = :my_email;', array(':my_email' => $my_email));
+		// Assume its new
+		$sql_str = "INSERT INTO `reminder_data` (`my_name`, `my_email`, `reminder_date`, `create_date`) VALUES (:my_name, :my_email, :reminder_date, now() );";
+		if (count($data) > 0) :
+			// We want to update it if its already been added
+			$sql_str = "UPDATE `reminder_data` SET `my_name` = :my_name, `reminder_date` = :reminder_date, `create_date` = now() WHERE my_email = :my_email;";
+		endif;
+		// Execute the sql string
+		mysql_execute($sql_str, array(':my_name' => $my_name, ':my_email' => $my_email, ':reminder_date' => $reminder_date));
+		// Set the complete flag
+		$completed = !$db_err;
 	
 	endif;
 	
@@ -85,13 +97,13 @@ else:
 	<div class="col-md-6">
 		<fieldset class="form-group">
 			<label for="my-name">Your name</label>
-			<input type="text" class="form-control" id="my-name" name="my_name" value="<?= $my_name ?>" />
+			<input type="text" class="form-control" id="my-name" name="my_name" value="<?= $my_name ?>" maxlength="100" />
 		</fieldset>
 	</div>
 	<div class="col-md-6">
 		<fieldset class="form-group">
 			<label for="my-email">Your email</label>
-			<input type="text" class="form-control" id="my-email" name="my_email" value="<?= $my_email ?>" />
+			<input type="text" class="form-control" id="my-email" name="my_email" value="<?= $my_email ?>" maxlength="100" />
 		</fieldset>
 	</div>
 </div>
