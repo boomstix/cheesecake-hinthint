@@ -83,6 +83,22 @@ if ($submitted) :
 		endif;
 		// Execute the sql string
 		mysql_execute($sql_str, array(':reminder_to' => $reminder_to, ':perfect_gift' => $perfect_gift, ':cake' => ($cake == "Other" ? $cake_other : $cake), ':my_name' => $my_name, ':my_email' => $my_email, ':reminder_name' => $reminder_name, ':reminder_email' => $reminder_email));
+
+		require_once("./assets/php/sendgrid-php.php");
+		
+		$options = array("turn_off_ssl_verification" => true);
+		$sendgrid = new SendGrid($sendgrid_user, $sendgrid_pass, $options);
+		$mail = new SendGrid\Email();
+		$mail->addTo($reminder_email)->
+			setReplyTo($my_email)->
+			setFromName($my_name)->
+			setFrom($my_email)->
+			setSubject('Subject goes here')->
+			setText('Hello. ' . $my_name . ' (' . $my_email . ') wants to send an email to ' .  $reminder_to . ' whose name is ' . $reminder_name. ' (' . $reminder_email . ').  They would like a ' . $perfect_gift . ', but would settle for a ' . $cake . '.')->
+			setHtml('<p>Hello.  ' . $my_name . ' (' . $my_email . ') wants to send an email to ' .  $reminder_to . ' whose name is ' . $reminder_name. ' (' . $reminder_email . ').</p><p>They would like a ' . $perfect_gift . ', but would settle for a ' . $cake . '.</p>');
+		
+		$sendgrid->send($mail);
+		
 		// Set the complete flag
 		$completed = !$db_err;
 	

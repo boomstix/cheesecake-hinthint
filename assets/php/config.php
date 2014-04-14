@@ -1,5 +1,8 @@
 <?php
 
+$sendgrid_user = "app24109921@heroku.com";
+$sendgrid_pass = "woumzahx";
+
 $db_host = "127.0.0.1";
 $db_username = "hinthint";
 $db_password = "hinthint";
